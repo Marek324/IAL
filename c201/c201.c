@@ -140,6 +140,7 @@ void List_GetFirst( List *list, int *dataPtr ) {
  */
 void List_DeleteFirst( List *list ) {
 	if (list->currentLength == 0) return; //nothing to delete
+	if (list->activeElement == list->firstElement) list->activeElement = NULL; //if the active element is the first one, set it to NULL
 
 	ListElementPtr tmp = list->firstElement; //store the first element
 	list->firstElement = list->firstElement->nextElement; //set the first element to the next one, can be NULL
