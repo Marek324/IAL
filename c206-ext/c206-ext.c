@@ -9,6 +9,23 @@
 bool error_flag;
 bool solved;
 
+//Helper functions
+
+void init_prio_list(DLList *list, PacketPtr packet){
+	QosPacketListPtr newList = (QosPacketListPtr) malloc(sizeof(QosPacketList));
+		if(newList == NULL){
+			//not sure what to do if malloc fails here
+			return;
+		}
+
+		newList->priority = packet->priority;
+		DLL_Init(newList->list);
+		DLL_InsertFirst(newList->list, (long) packet);
+
+		DLL_InsertFirst(list, (long) newList);
+}
+
+
 /**
  * Tato metoda simuluje příjem síťových paketů s určenou úrovní priority.
  * Přijaté pakety jsou zařazeny do odpovídajících front dle jejich priorit.
@@ -28,7 +45,31 @@ bool solved;
  * @param packet Ukazatel na strukturu přijatého paketu
  */
 void receive_packet( DLList *packetLists, PacketPtr packet ) {
-	solved = false; /* V případě řešení, smažte tento řádek! */
+	DLL_First(packetLists); //set activeElement to first
+	if(!DLL_IsActive(packetLists)){
+		init_prio_list(packetLists, packet);
+	} 
+
+	DLLElementPtr ePtr = packetLists->activeElement;
+	while (ePtr != NULL)
+	{
+		QosPacketListPtr pListPtr = (QosPacketListPtr) ePtr->data;
+		
+		if(pListPtr->priority == packet->priority){
+			if (pListPtr->list->currentLength >= MAX_PACKET_COUNT){
+				DLL_First(pListPtr->list);
+				int c = 0;
+				while (DLL_IsActive(pListPtr->list))
+				{
+					if(!(c++)&1)
+						DLL_DeleteAfter(pListPtr); 
+				}
+			}
+			DLL_InsertLast(pListPtr->list, (long) packet);
+		}
+	}
+	
+
 }
 
 /**
