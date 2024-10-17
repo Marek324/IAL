@@ -77,10 +77,10 @@ void List_Init( List *list ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  **/
 void List_Dispose( List *list ) {
-	while(list->currentLength != 0) List_DeleteFirst(list);
 	//this will delete all the elements
 	//set the first and active elements to NULL
 	//set the currentLength to 0
+	while(list->currentLength != 0) List_DeleteFirst(list);
 }
 
 /**
@@ -92,17 +92,17 @@ void List_Dispose( List *list ) {
  * @param data Hodnota k vložení na začátek seznamu
  */
 void List_InsertFirst( List *list, int data ) {
-	ListElementPtr newElement = (ListElementPtr) malloc(sizeof(struct ListElement));
+	ListElementPtr newElement = (ListElementPtr) malloc(sizeof(struct ListElement)); //create new element
 	if (newElement == NULL){
 		List_Error();
 		return; //end the function if malloc failed
 	}
 
-	newElement->data = data;
-	newElement->nextElement = list->firstElement; //can be NULL, no problem
-	list->firstElement = newElement;
+	newElement->data = data; //assign data to the new element
+	newElement->nextElement = list->firstElement; //set the next element to the first element, can be NULL
+	list->firstElement = newElement; //set the first element to the new element
 	
-	list->currentLength++;
+	list->currentLength++; //increase the current length
 }
 
 /**
@@ -128,7 +128,7 @@ void List_GetFirst( List *list, int *dataPtr ) {
 		return; //end the function if malloc failed
 	}
 
-	*dataPtr = list->firstElement->data;
+	*dataPtr = list->firstElement->data; //assign the data of the first element to the dataPtr
 }
 
 /**
@@ -183,10 +183,10 @@ void List_InsertAfter( List *list, int data ) {
 		return; //end the function if malloc failed
 	}
 
-	newElement->data = data;
+	newElement->data = data; //assign data to the new element
 
-	newElement->nextElement = list->activeElement->nextElement; //can be NULL, no problem
-	list->activeElement->nextElement = newElement;
+	newElement->nextElement = list->activeElement->nextElement; //set the next element of the new element to the next element of the active element
+	list->activeElement->nextElement = newElement; //set the next element of the active element to the new element
 
 	list->currentLength++;
 }
@@ -204,7 +204,7 @@ void List_GetValue( List *list, int *dataPtr ) {
 		return; //end the function if list isn't active
 	}
 
-	*dataPtr = list->activeElement->data;
+	*dataPtr = list->activeElement->data; //assign the data of the active element to the dataPtr
 }
 
 /**
@@ -217,7 +217,7 @@ void List_GetValue( List *list, int *dataPtr ) {
 void List_SetValue( List *list, int data ) {
 	if (!List_IsActive(list)) return; //no active element to set it's value
 
-	list->activeElement->data = data;
+	list->activeElement->data = data; //set the data of the active element to the new value
 }
 
 /**
@@ -230,7 +230,7 @@ void List_SetValue( List *list, int data ) {
 void List_Next( List *list ) {
 	if (!List_IsActive(list)) return; //no active element to move to the next one
 
-	list->activeElement = list->activeElement->nextElement;
+	list->activeElement = list->activeElement->nextElement; //set the active element to the next one
 }
 
 /**

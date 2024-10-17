@@ -24,13 +24,14 @@ void insert_prio_list(DLList *list, PacketPtr packet, InsertPosition pos){
 		return;
 	}
 
-	newList->list = (DLList *) malloc(sizeof(DLList));
+	newList->list = (DLList *) malloc(sizeof(DLList)); 
 	if(newList->list == NULL){
 		error_flag = true;
 		free(newList);
 		return;
 	}
 
+	//create DLL with the same priority as the packet
 	DLL_Init(newList->list);
 	newList->priority = packet->priority;
 	DLL_InsertFirst(newList->list, (long) packet);
@@ -55,8 +56,8 @@ void delete_even_packets(DLList *list){
 	int c = 0;
 	while (DLL_IsActive(list))
 	{
-		if(!((c++)&1))
-			DLL_DeleteAfter(list); 
+		if(!((c++)&1)) //on every odd index
+			DLL_DeleteAfter(list); //delete the next element
 		DLL_Next(list);
 	}
 }
@@ -81,11 +82,11 @@ void delete_even_packets(DLList *list){
  * @param packet Ukazatel na strukturu přijatého paketu
  */
 void receive_packet( DLList *packetLists, PacketPtr packet ) {
-	DLL_First(packetLists); //set activeElement to first
+	DLL_First(packetLists); //set activeElement to first queue
 
-	// List is empty when inserting first packet
+	//list is empty when inserting first packet
 	if (!DLL_IsActive(packetLists)){
-		insert_prio_list(packetLists, packet, FIRST);
+		insert_prio_list(packetLists, packet, FIRST); //create new queue with priority of the packet
 		return;
 	}
 
@@ -94,27 +95,29 @@ void receive_packet( DLList *packetLists, PacketPtr packet ) {
 		DLL_GetValue(packetLists, &prioList);
 		long prio = ((QosPacketListPtr) prioList)->priority;
 
+		//same priority
 		if (prio == packet->priority) 
 		{
-			if (((QosPacketListPtr) prioList)->list->currentLength >= MAX_PACKET_COUNT){
+			if (((QosPacketListPtr) prioList)->list->currentLength >= MAX_PACKET_COUNT){ //check if the queue is full
 				delete_even_packets(((QosPacketListPtr) prioList)->list);
 			}
 			DLL_InsertLast(((QosPacketListPtr) prioList)->list, (long) packet);
 			return;
 		} 
 		
+		//higher priority
 		else if (prio > packet->priority) 
 		{
 			if (packetLists->activeElement->nextElement != NULL){
 				DLL_Next(packetLists);
-			} else {
-				insert_prio_list(packetLists, packet, FIRST);
+			} else { //if end of queue create new queue at the end
+				insert_prio_list(packetLists, packet, AFTER);
 				return;
 			}
 		} 
 		
 		else 
-		{
+		{ //lower priority, means that the packet should be inserted before the current one
 			insert_prio_list(packetLists, packet, BEFORE);
 			return;
 		}
@@ -123,6 +126,7 @@ void receive_packet( DLList *packetLists, PacketPtr packet ) {
 	
 }
 
+//copies packet to the output list, so it can be deleted from the input list
 void copy_packet_out(DLList *outList, PacketPtr packet){
 	PacketPtr newPacket = (PacketPtr) malloc(sizeof(Packet));
 	if(newPacket == NULL){
@@ -153,21 +157,21 @@ void copy_packet_out(DLList *outList, PacketPtr packet){
  */
 void send_packets( DLList *packetLists, DLList *outputPacketList, int maxPacketCount ){
 	DLL_First(packetLists);
-	if(!DLL_IsActive(packetLists)){ // No queued packets
+	if(!DLL_IsActive(packetLists)){ //no queued packets
 		return;
 	}
 
-	while (DLL_IsActive(packetLists) && maxPacketCount > 0)
+	while (DLL_IsActive(packetLists) && maxPacketCount > 0) //goes through all the queues
 	{
 		QosPacketListPtr prioList = (QosPacketListPtr) packetLists->activeElement->data;
 
 		DLL_First(prioList->list);
-		while (DLL_IsActive(prioList->list) && maxPacketCount > 0)
+		while (DLL_IsActive(prioList->list) && maxPacketCount > 0) //goes through all the packets in the queue
 		{
-			copy_packet_out(outputPacketList, (PacketPtr) prioList->list->activeElement->data);
-			DLL_DeleteFirst(prioList->list);
-			DLL_First(prioList->list);	
-			maxPacketCount--;
+			copy_packet_out(outputPacketList, (PacketPtr) prioList->list->activeElement->data); //copy the packet to the output list
+			DLL_DeleteFirst(prioList->list); //delete the packet from the queue
+			DLL_First(prioList->list); //set the active element to the first one, because the activity was lost
+			maxPacketCount--; 
 		}
 
 

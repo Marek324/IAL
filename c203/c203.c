@@ -113,7 +113,7 @@ void Queue_Init( Queue *queue ) {
  * @param index Aktuální index
  */
 int nextIndex( int index ) {
-	return ((index + 1) % QUEUE_SIZE);
+	return ((index + 1) % QUEUE_SIZE); 
 }
 
 /**
@@ -123,6 +123,7 @@ int nextIndex( int index ) {
  * @param queue Ukazatel na inicializovanou strukturu fronty
  */
 int Queue_IsEmpty( const Queue *queue ) {
+	//if firstIndex is equal to freeIndex, the queue is empty 
 	return queue->firstIndex == queue->freeIndex;
 }
 
@@ -134,8 +135,8 @@ int Queue_IsEmpty( const Queue *queue ) {
  * @param queue Ukazatel na inicializovanou strukturu fronty
  */
 int Queue_IsFull( const Queue *queue ) {
-	return queue->firstIndex == nextIndex(queue->freeIndex);
-}
+	//if freeIndex would be equal to firstIndex after the nextIndex function, the queue is full
+	return queue->firstIndex == nextIndex(queue->freeIndex); }
 
 /**
  * Prostřednictvím parametru dataPtr vrátí znak ze začátku fronty queue.
@@ -156,7 +157,7 @@ void Queue_Front( const Queue *queue, char *dataPtr ) {
 		return; //end the function if the queue is empty
 	}
 
-	*dataPtr = queue->array[queue->firstIndex];
+	*dataPtr = queue->array[queue->firstIndex]; //assign the value from the front to the dataPtr
 }
 
 /**
@@ -173,7 +174,7 @@ void Queue_Remove( Queue *queue ) {
 		return; //end the function if the queue is empty
 	}
 
-	queue->firstIndex = nextIndex(queue->firstIndex);
+	queue->firstIndex = nextIndex(queue->firstIndex); //move the firstIndex to the next one
 }
 
 /**
@@ -214,8 +215,8 @@ void Queue_Enqueue( Queue *queue, char data ) {
 		return; //end the function if the queue is full
 	}
 
-	queue->array[queue->freeIndex] = data;
-	queue->freeIndex = nextIndex(queue->freeIndex);
+	queue->array[queue->freeIndex] = data; //assign the value to the freeIndex
+	queue->freeIndex = nextIndex(queue->freeIndex); //move the freeIndex to the next one
 }
 
 /* Konec příkladu c203.c */
