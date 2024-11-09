@@ -8,6 +8,7 @@ FILES_ITER=exa.c ../iter/btree.c ../iter/stack.c ../btree.c ../test_util.c ../te
 test: $(FILES_REC)
 	$(CC) -DEXA=1 $(CFLAGS) -o $@_rec $(FILES_REC)
 	$(CC) -DEXA=1 $(CFLAGS) -o $@_iter $(FILES_ITER)
+	./test_rec
 
 clean:
 	rm -f test_rec

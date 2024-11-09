@@ -21,6 +21,7 @@
  */
 void bst_init(bst_node_t **tree)
 {
+  (*tree) = NULL;
 }
 
 /*
@@ -34,6 +35,18 @@ void bst_init(bst_node_t **tree)
  */
 bool bst_search(bst_node_t *tree, char key, bst_node_content_t **value)
 {
+  while (tree != NULL) {
+    if (tree->key == key) {
+      *value = &(tree->content);
+      return true;
+    } else {
+      if (key < tree->key) {
+        tree = tree->left;
+      } else {
+        tree = tree->right;
+      }
+    }
+  }
   return false;
 }
 
@@ -50,6 +63,24 @@ bool bst_search(bst_node_t *tree, char key, bst_node_content_t **value)
  */
 void bst_insert(bst_node_t **tree, char key, bst_node_content_t value)
 {
+  while((*tree) != NULL) {
+    if ((*tree)->key == key) {
+      free((*tree)->content.value);
+      (*tree)->content = value;
+      return;
+    } else {
+      if (key < (*tree)->key) {
+        tree = &((*tree)->left);
+      } else {
+        tree = &((*tree)->right);
+      }
+    }
+  }
+  (*tree) = malloc(sizeof(bst_node_t));
+  (*tree)->key = key;
+  (*tree)->content = value;
+  (*tree)->left = NULL;
+  (*tree)->right = NULL;
 }
 
 /*
@@ -67,6 +98,16 @@ void bst_insert(bst_node_t **tree, char key, bst_node_content_t value)
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree)
 {
+  while((*tree)->right != NULL){
+    tree = &((*tree)->right);
+  }
+
+  target->key = (*tree)->key;
+  free(target->content.value);
+  target->content = (*tree)->content;
+  bst_node_t *tmp = *tree;
+  *tree = (*tree)->left;
+  free(tmp);
 }
 
 /*
@@ -84,6 +125,33 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree)
  */
 void bst_delete(bst_node_t **tree, char key)
 {
+  while((*tree) != NULL){ 
+    if (key < ((*tree)->key)) { // go left
+      tree = &((*tree)->left);
+    } else if (key > ((*tree)->key)){ // go right
+      tree = &((*tree)->right);
+    } else { // found
+      if ((*tree)->left == NULL && (*tree)->right == NULL ) { // no children
+        bst_node_t *tmp = *tree;
+        *tree = NULL;
+        free(tmp->content.value);
+        free(tmp);
+      } else if ((*tree)->left == NULL) { // right child
+        bst_node_t *tmp = *tree;
+        *tree = (*tree)->right;
+        free(tmp->content.value);
+        free(tmp);
+      } else if ((*tree)->right == NULL) { // left child
+        bst_node_t *tmp = *tree;
+        *tree = (*tree)->left;
+        free(tmp->content.value);
+        free(tmp);
+      } else { // both children
+        bst_replace_by_rightmost(*tree, &((*tree)->left));
+      }
+    }
+  } 
+  // key not found, nothing happens
 }
 
 /*
@@ -98,6 +166,26 @@ void bst_delete(bst_node_t **tree, char key)
  */
 void bst_dispose(bst_node_t **tree)
 {
+  stack_bst_t *s = malloc(sizeof(stack_bst_t));
+  if (s == NULL) {
+    return;
+  }
+  stack_bst_init(s);
+  stack_bst_push(s, *tree);
+  *tree = NULL;
+  while(!stack_bst_empty(s)) {
+    bst_node_t *node = stack_bst_pop(s);
+    if(node == NULL) {
+      continue;
+    }
+    stack_bst_push(s, node->left);
+    stack_bst_push(s, node->right);
+    
+    free(node->content.value);  
+    free(node);
+  
+  }
+  free(s);
 }
 
 /*
@@ -111,6 +199,12 @@ void bst_dispose(bst_node_t **tree)
  */
 void bst_leftmost_preorder(bst_node_t *tree, stack_bst_t *to_visit, bst_items_t *items)
 {
+  while(tree != NULL) {
+    bst_add_node_to_items(tree, items);
+    stack_bst_push(to_visit, tree);
+    tree = tree->left;
+  }
+  
 }
 
 /*
@@ -123,6 +217,19 @@ void bst_leftmost_preorder(bst_node_t *tree, stack_bst_t *to_visit, bst_items_t 
  */
 void bst_preorder(bst_node_t *tree, bst_items_t *items)
 {
+  stack_bst_t *s = malloc(sizeof(stack_bst_t));
+  if (s == NULL) {
+    return;
+  }
+  stack_bst_init(s);
+  bst_leftmost_preorder(tree, s, items);
+
+  while(!stack_bst_empty(s)){
+    tree = stack_bst_pop(s);
+    bst_leftmost_preorder(tree->right, s, items);
+  }
+
+  free(s);
 }
 
 /*
@@ -136,6 +243,10 @@ void bst_preorder(bst_node_t *tree, bst_items_t *items)
  */
 void bst_leftmost_inorder(bst_node_t *tree, stack_bst_t *to_visit)
 {
+  while(tree != NULL) {
+    stack_bst_push(to_visit, tree);
+    tree = tree->left;
+  }
 }
 
 /*
@@ -148,6 +259,20 @@ void bst_leftmost_inorder(bst_node_t *tree, stack_bst_t *to_visit)
  */
 void bst_inorder(bst_node_t *tree, bst_items_t *items)
 {
+  stack_bst_t *s = malloc(sizeof(stack_bst_t));
+  if (s == NULL) {
+    return;
+  }
+  stack_bst_init(s);
+  bst_leftmost_inorder(tree, s);
+
+  while(!stack_bst_empty(s)){
+    tree = stack_bst_pop(s);
+    bst_add_node_to_items(tree, items);
+    bst_leftmost_inorder(tree->right, s);
+  }
+  
+  free(s);
 }
 
 /*
@@ -163,6 +288,11 @@ void bst_inorder(bst_node_t *tree, bst_items_t *items)
 void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
                             stack_bool_t *first_visit)
 {
+  while(tree != NULL) {
+    stack_bst_push(to_visit, tree);
+    stack_bool_push(first_visit, true);
+    tree = tree->left;
+  }
 }
 
 /*
@@ -175,4 +305,32 @@ void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
  */
 void bst_postorder(bst_node_t *tree, bst_items_t *items)
 {
+  stack_bst_t *s = malloc(sizeof(stack_bst_t));
+  if (s == NULL) {
+    return;
+  }
+  stack_bst_init(s);
+  stack_bool_t *s_visit = malloc(sizeof(stack_bool_t));
+  if (s_visit == NULL) {
+    free(s);
+    return;
+  }
+  stack_bool_init(s_visit);
+
+  bst_leftmost_postorder(tree, s, s_visit);
+  while(!stack_bst_empty(s)){
+    bst_node_t *node = stack_bst_pop(s);
+    bool first = stack_bool_pop(s_visit);
+    if (first) {
+      stack_bst_push(s, node);
+      stack_bool_push(s_visit, false);
+      bst_leftmost_postorder(node->right, s, s_visit);
+      
+    } else {
+      bst_add_node_to_items(node, items);
+    }
+  }
+
+  free(s);
+  free(s_visit);
 }

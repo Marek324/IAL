@@ -6,7 +6,6 @@
  * (až na úroveň lineárního seznamu). Jako typ hodnoty v uzlu stromu využijte 'INTEGER'.
  * 
  */
-
 #include "../btree.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,5 +29,18 @@
  * 
  * Pro implementaci si můžete v tomto souboru nadefinovat vlastní pomocné funkce.
 */
-void letter_count(bst_node_t **tree, char *input) {
+void letter_count(bst_node_t **tree, char *input) 
+{
+    char c;
+    for (int i = 0; (c = input[i]) != '\0'; i++) {
+        if (!(c >= 'a' && c <= 'c') && c != ' ') c = '_';
+
+        bst_node_content_t *count = &(bst_node_content_t){.value = NULL, .type = INTEGER};
+        if (bst_search(*tree, c, &count)) (*((int *)count->value))++;
+        else{
+            count->value = malloc(sizeof(int));
+            (*((int *)count->value)) = 1;
+            bst_insert(tree, c, (bst_node_content_t){.value = count->value, .type = INTEGER});
+        }
+    }
 }

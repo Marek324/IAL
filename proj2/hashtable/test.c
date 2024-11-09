@@ -27,7 +27,8 @@ ENDTEST
 
 TEST(test_search_nonexist, "Search for a non-existing item")
 ht_init(test_table);
-ht_search(test_table, "Ethereum");
+ht_item_t *item = ht_search(test_table, "Ethereum");
+printf("Found item: %s\n", item == NULL ? "NULL" : item->key);
 ENDTEST
 
 TEST(test_insert_simple, "Insert a new item")
@@ -38,7 +39,8 @@ ENDTEST
 TEST(test_search_exist, "Search for an existing item")
 ht_init(test_table);
 ht_insert(test_table, "Ethereum", 3208.67);
-ht_search(test_table, "Ethereum");
+ht_item_t *item = ht_search(test_table, "Ethereum");
+printf("Found item: %s\n", item == NULL ? "NULL" : item->key);
 ENDTEST
 
 TEST(test_insert_many, "Insert many new items")
@@ -49,25 +51,30 @@ ENDTEST
 TEST(test_search_collision, "Search for an item with colliding hash")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
-ht_search(test_table, "Terra");
+ht_item_t* item = ht_search(test_table, "Terra");
+printf("Looking for Terra, found: %s\n", item == NULL ? "NULL" : item->key);
 ENDTEST
 
 TEST(test_insert_update, "Update an item")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
 ht_insert(test_table, "Ethereum", 12.34);
+printf("Ethereum should have value 12.34 instead of 3208.67\n");
 ENDTEST
 
 TEST(test_get, "Get an item's value")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
-ht_get(test_table, "Ethereum");
+float *val = ht_get(test_table, "Ethereum");
+printf("Looking for Ethereum value\n");
+printf("Value: %f\n", val == NULL ? -1 : *val);
 ENDTEST
 
 TEST(test_delete, "Delete an item")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
 ht_delete(test_table, "Terra");
+printf("Terra should be deleted\n");
 ENDTEST
 
 TEST(test_delete_all, "Delete all the items")

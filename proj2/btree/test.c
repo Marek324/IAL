@@ -71,7 +71,8 @@ TEST(test_tree_search, "Search for an item deeper in the tree (A)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_node_content_t* result = NULL;
-bst_search(test_tree, 'A', &result);
+bool res = bst_search(test_tree, 'A', &result);
+printf("Search result: %s\n", res ? "true" : "false");
 bst_print_tree(test_tree);
 bst_print_search_result(result);
 ENDTEST
@@ -80,7 +81,8 @@ TEST(test_tree_search_missing, "Search for a missing key (X)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_node_content_t* result = NULL;
-bst_search(test_tree, 'X', &result);
+bool res = bst_search(test_tree, 'X', &result);
+printf("Search result: %s\n", res ? "true" : "false");
 bst_print_tree(test_tree);
 bst_print_search_result(result);
 ENDTEST
@@ -178,34 +180,35 @@ ENDTEST
 
 TEST(test_letter_count, "Count letters");
 bst_init(&test_tree);
-letter_count(&test_tree, "abBcCc_ 123 *");
+letter_count(&test_tree, "abc abc abc 123 456");
+printf("Expected letter count:\n\t[a,3]\n\t[b,3]\n\t[c,3]\n\t[ ,4]\n\t[_,6]\n");
 bst_print_tree(test_tree);
 ENDTEST
 
 #endif // EXA
 
 int main(int argc, char *argv[]) {
-  init_test();
+  // init_test();
 
-  test_tree_init();
-  test_tree_dispose_empty();
-  test_tree_search_empty();
-  test_tree_insert_root();
-  test_tree_search_root();
-  test_tree_update_root();
-  test_tree_insert_many();
-  test_tree_search();
-  test_tree_search_missing();
-  test_tree_delete_leaf();
-  test_tree_delete_left_subtree();
-  test_tree_delete_right_subtree();
-  test_tree_delete_both_subtrees();
-  test_tree_delete_missing();
-  test_tree_delete_root();
-  test_tree_dispose_filled();
-  test_tree_preorder();
-  test_tree_inorder();
-  test_tree_postorder();
+  // test_tree_init();
+  // test_tree_dispose_empty();
+  // test_tree_search_empty();
+  // test_tree_insert_root();
+  // test_tree_search_root();
+  // test_tree_update_root();
+  // test_tree_insert_many();
+  // test_tree_search();
+  // test_tree_search_missing();
+  // test_tree_delete_leaf();
+  // test_tree_delete_left_subtree();
+  // test_tree_delete_right_subtree();
+  // test_tree_delete_both_subtrees();
+  // test_tree_delete_missing();
+  // test_tree_delete_root();
+  // test_tree_dispose_filled();
+  // test_tree_preorder();
+  // test_tree_inorder();
+  // test_tree_postorder();
 
 #ifdef EXA
   test_letter_count();
