@@ -33,7 +33,8 @@ void letter_count(bst_node_t **tree, char *input)
 {
     char c;
     for (int i = 0; (c = input[i]) != '\0'; i++) {
-        if (!(c >= 'a' && c <= 'c') && c != ' ') c = '_';
+        if (c >= 'A' && c <= 'C') c |= 32;
+        else if (!(c >= 'a' && c <= 'c') && c != ' ') c = '_';
 
         bst_node_content_t *count = &(bst_node_content_t){.value = NULL, .type = INTEGER};
         if (bst_search(*tree, c, &count)) (*((int *)count->value))++;

@@ -180,7 +180,7 @@ ENDTEST
 
 TEST(test_letter_count, "Count letters");
 bst_init(&test_tree);
-letter_count(&test_tree, "abc abc abc 123 456");
+letter_count(&test_tree, "abc ABC abc 123 456");
 printf("Expected letter count:\n\t[a,3]\n\t[b,3]\n\t[c,3]\n\t[ ,4]\n\t[_,6]\n");
 bst_print_tree(test_tree);
 ENDTEST
