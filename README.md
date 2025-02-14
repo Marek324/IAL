@@ -1,4 +1,3 @@
 # IAL
-Projects from FIT BUT rouse Algorithms
+Projects from FIT BUT course Algorithms
 
-proj1: 5/10b
